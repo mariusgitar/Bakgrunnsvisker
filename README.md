@@ -13,3 +13,5 @@ Bakgrunnsfjerner er en intern kommunal webapp for opplasting av bilder, fremtidi
 ## Status
 
 Dette er kun et grunnoppsett. Ingen ML-funksjonalitet er implementert ennå.
+
+Liten oppdatering: repoet er klargjort for en ny deploy/build-kjøring via GitHub Actions.
