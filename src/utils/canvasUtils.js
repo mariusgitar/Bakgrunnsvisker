@@ -55,3 +55,40 @@ export function applyMaskToCanvas(imageElement, maskData, threshold = 0.5) {
 
   return canvas;
 }
+
+/**
+ * Removes near-white pixels from an image by making them transparent.
+ *
+ * @param {HTMLImageElement} imageElement - The loaded image element to draw.
+ * @param {number} [tolerance=240] - Pixels with RGB values above this become transparent.
+ * @returns {HTMLCanvasElement} A canvas containing the processed image.
+ */
+export function removeWhiteBackground(imageElement, tolerance = 240) {
+  const canvas = document.createElement('canvas');
+  const width = imageElement.naturalWidth || imageElement.width;
+  const height = imageElement.naturalHeight || imageElement.height;
+
+  canvas.width = width;
+  canvas.height = height;
+
+  const context = canvas.getContext('2d');
+
+  context.drawImage(imageElement, 0, 0, width, height);
+
+  const imageData = context.getImageData(0, 0, width, height);
+  const pixels = imageData.data;
+
+  for (let pixelIndex = 0; pixelIndex < pixels.length; pixelIndex += 4) {
+    const red = pixels[pixelIndex];
+    const green = pixels[pixelIndex + 1];
+    const blue = pixels[pixelIndex + 2];
+
+    if (red > tolerance && green > tolerance && blue > tolerance) {
+      pixels[pixelIndex + 3] = 0;
+    }
+  }
+
+  context.putImageData(imageData, 0, 0);
+
+  return canvas;
+}
