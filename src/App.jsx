@@ -9,6 +9,7 @@ export default function App() {
   );
   const objectUrlRef = useRef('');
   const currentImageRef = useRef(null);
+  const originalFileNameRef = useRef('');
   const resultContainerRef = useRef(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isModelLoading, setIsModelLoading] = useState(false);
@@ -86,6 +87,31 @@ export default function App() {
     }
   }, [resultCanvas]);
 
+  const handleDownloadResult = () => {
+    if (!resultCanvas) {
+      return;
+    }
+
+    resultCanvas.toBlob((blob) => {
+      if (!blob) {
+        setErrorMessage('Kunne ikke generere PNG-filen for nedlasting.');
+        return;
+      }
+
+      const downloadUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const originalName = originalFileNameRef.current || 'bilde';
+      const extensionIndex = originalName.lastIndexOf('.');
+      const baseName = extensionIndex > 0 ? originalName.slice(0, extensionIndex) : originalName;
+
+      link.href = downloadUrl;
+      link.download = `${baseName}-uten-bakgrunn.png`;
+      link.click();
+
+      URL.revokeObjectURL(downloadUrl);
+    }, 'image/png');
+  };
+
   const handleImageSelected = async (file) => {
     setErrorMessage('');
     setResultCanvas(null);
@@ -102,6 +128,7 @@ export default function App() {
       const imageUrl = URL.createObjectURL(file);
 
       currentImageRef.current = imageElement;
+      originalFileNameRef.current = file.name;
       objectUrlRef.current = imageUrl;
 
       worker.postMessage({ type: 'REMOVE_BG', imageUrl });
@@ -135,6 +162,15 @@ export default function App() {
         <div className="space-y-2">
           <h2 className="text-lg font-medium text-slate-900">Resultat</h2>
           <div ref={resultContainerRef} className="flex justify-center" />
+          {resultCanvas ? (
+            <button
+              type="button"
+              onClick={handleDownloadResult}
+              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
+            >
+              Last ned PNG
+            </button>
+          ) : null}
         </div>
       </div>
     </main>
