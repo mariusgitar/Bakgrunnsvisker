@@ -12,7 +12,8 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "@huggingface/transformers": "^3.7.2",
-    "@lottiefiles/dotlottie-react": "^0.18.0"
+    "@lottiefiles/dotlottie-react": "^0.18.0",
+    "canvas-confetti": "^1.9.3"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^5.0.0",
