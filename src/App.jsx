@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ImageDropzone from './components/ImageDropzone';
+import LoadingAnimation from './components/LoadingAnimation';
 import {
   applyMaskToCanvas,
   fileToImageElement,
@@ -212,9 +213,7 @@ export default function App() {
           <ImageDropzone onImageSelected={handleImageSelected} />
         </div>
 
-        {isModelLoading ? <p className="text-sm text-slate-600">Laster modell...</p> : null}
-
-        {isProcessing ? <p className="text-sm text-slate-600">Behandler bilde...</p> : null}
+        {isProcessing ? <LoadingAnimation /> : null}
 
         {errorMessage ? <p className="text-sm text-red-600">{errorMessage}</p> : null}
 
