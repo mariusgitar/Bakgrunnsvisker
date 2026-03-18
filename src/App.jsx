@@ -210,10 +210,16 @@ export default function App() {
             </div>
           </section>
 
-          <ImageDropzone onImageSelected={handleImageSelected} />
+          <div className="w-full">
+            {isProcessing ? (
+              <div className="flex w-full items-center justify-center [&>div]:flex [&>div]:min-h-[260px] [&>div]:w-full [&>div]:max-w-xl [&>div]:items-center [&>div]:justify-center">
+                <LoadingAnimation />
+              </div>
+            ) : (
+              <ImageDropzone onImageSelected={handleImageSelected} />
+            )}
+          </div>
         </div>
-
-        {isProcessing ? <LoadingAnimation /> : null}
 
         {errorMessage ? <p className="text-sm text-red-600">{errorMessage}</p> : null}
 
