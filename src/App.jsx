@@ -1,6 +1,15 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ImageDropzone from './components/ImageDropzone';
-import { applyMaskToCanvas, fileToImageElement } from './utils/canvasUtils';
+import {
+  applyMaskToCanvas,
+  fileToImageElement,
+  removeWhiteBackground,
+} from './utils/canvasUtils';
+
+const MODES = {
+  PHOTO: 'photo',
+  WHITE_BG: 'white-background',
+};
 
 export default function App() {
   const worker = useMemo(
@@ -11,6 +20,7 @@ export default function App() {
   const currentImageRef = useRef(null);
   const originalFileNameRef = useRef('');
   const resultContainerRef = useRef(null);
+  const [selectedMode, setSelectedMode] = useState(MODES.PHOTO);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isModelLoading, setIsModelLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -125,12 +135,19 @@ export default function App() {
 
     try {
       const imageElement = await fileToImageElement(file);
-      const imageUrl = URL.createObjectURL(file);
 
       currentImageRef.current = imageElement;
       originalFileNameRef.current = file.name;
-      objectUrlRef.current = imageUrl;
 
+      if (selectedMode === MODES.WHITE_BG) {
+        const canvas = removeWhiteBackground(imageElement);
+        setResultCanvas(canvas);
+        setIsProcessing(false);
+        return;
+      }
+
+      const imageUrl = URL.createObjectURL(file);
+      objectUrlRef.current = imageUrl;
       worker.postMessage({ type: 'REMOVE_BG', imageUrl });
     } catch (error) {
       setErrorMessage(
@@ -150,6 +167,45 @@ export default function App() {
             Last opp et bilde for å fjerne bakgrunnen
           </p>
         </div>
+
+        <section className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-700">Modus</h2>
+          <div className="grid gap-3 md:grid-cols-2">
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 transition hover:border-sky-300">
+              <input
+                type="radio"
+                name="processing-mode"
+                value={MODES.PHOTO}
+                checked={selectedMode === MODES.PHOTO}
+                onChange={(event) => setSelectedMode(event.target.value)}
+                className="mt-1"
+              />
+              <span>
+                <span className="block font-medium text-slate-900">Foto/kompleks bakgrunn</span>
+                <span className="block text-sm text-slate-600">
+                  Bruk ML-modellen for bilder med motiv og ujevn bakgrunn.
+                </span>
+              </span>
+            </label>
+
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 transition hover:border-sky-300">
+              <input
+                type="radio"
+                name="processing-mode"
+                value={MODES.WHITE_BG}
+                checked={selectedMode === MODES.WHITE_BG}
+                onChange={(event) => setSelectedMode(event.target.value)}
+                className="mt-1"
+              />
+              <span>
+                <span className="block font-medium text-slate-900">Hvit bakgrunn (illustrasjon)</span>
+                <span className="block text-sm text-slate-600">
+                  Fjerner lyse piksler direkte uten å bruke ML-modellen.
+                </span>
+              </span>
+            </label>
+          </div>
+        </section>
 
         <ImageDropzone onImageSelected={handleImageSelected} />
 
