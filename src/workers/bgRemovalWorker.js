@@ -1,6 +1,6 @@
 import { pipeline } from '@huggingface/transformers';
 
-const MODEL_ID = 'briaai/RMBG-1.4';
+const MODEL_ID = 'briaai/RMBG-2.0';
 const TASK = 'image-segmentation';
 
 let segmenterPromise;
