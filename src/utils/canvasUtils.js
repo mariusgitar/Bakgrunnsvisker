@@ -27,10 +27,11 @@ export function fileToImageElement(file) {
  * Draws an image onto a canvas and applies a pixel alpha mask.
  *
  * @param {HTMLImageElement} imageElement - The loaded image element to draw.
- * @param {Uint8ClampedArray} maskData - Alpha values with one entry per image pixel.
+ * @param {Uint8ClampedArray | Float32Array | number[]} maskData - Mask values with one entry per image pixel.
+ * @param {number} [threshold=0.5] - Values below the threshold become transparent, above become opaque.
  * @returns {HTMLCanvasElement} A canvas containing the masked image.
  */
-export function applyMaskToCanvas(imageElement, maskData) {
+export function applyMaskToCanvas(imageElement, maskData, threshold = 0.5) {
   const canvas = document.createElement('canvas');
   const width = imageElement.naturalWidth || imageElement.width;
   const height = imageElement.naturalHeight || imageElement.height;
@@ -46,7 +47,8 @@ export function applyMaskToCanvas(imageElement, maskData) {
   const pixels = imageData.data;
 
   for (let pixelIndex = 0; pixelIndex < maskData.length; pixelIndex += 1) {
-    pixels[pixelIndex * 4 + 3] = maskData[pixelIndex];
+    const alphaIndex = pixelIndex * 4 + 3;
+    pixels[alphaIndex] = maskData[pixelIndex] >= threshold ? 255 : 0;
   }
 
   context.putImageData(imageData, 0, 0);
