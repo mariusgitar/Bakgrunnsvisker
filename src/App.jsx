@@ -93,6 +93,7 @@ export default function App() {
     container.innerHTML = '';
 
     if (resultCanvas) {
+      resultCanvas.className = 'h-auto w-full max-w-[480px] rounded-xl border border-slate-200 bg-white shadow-sm';
       container.appendChild(resultCanvas);
     }
   }, [resultCanvas]);
@@ -168,46 +169,48 @@ export default function App() {
           </p>
         </div>
 
-        <section className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-700">Modus</h2>
-          <div className="grid gap-3 md:grid-cols-2">
-            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 transition hover:border-sky-300">
-              <input
-                type="radio"
-                name="processing-mode"
-                value={MODES.PHOTO}
-                checked={selectedMode === MODES.PHOTO}
-                onChange={(event) => setSelectedMode(event.target.value)}
-                className="mt-1"
-              />
-              <span>
-                <span className="block font-medium text-slate-900">Foto/kompleks bakgrunn</span>
-                <span className="block text-sm text-slate-600">
-                  Bruk ML-modellen for bilder med motiv og ujevn bakgrunn.
+        <div className="mx-auto w-full max-w-[600px] space-y-4">
+          <section className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-700">Modus</h2>
+            <div className="grid gap-3 md:grid-cols-2">
+              <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 transition hover:border-sky-300">
+                <input
+                  type="radio"
+                  name="processing-mode"
+                  value={MODES.PHOTO}
+                  checked={selectedMode === MODES.PHOTO}
+                  onChange={(event) => setSelectedMode(event.target.value)}
+                  className="mt-1"
+                />
+                <span>
+                  <span className="block font-medium text-slate-900">Foto/kompleks bakgrunn</span>
+                  <span className="block text-sm text-slate-600">
+                    Bruk ML-modellen for bilder med motiv og ujevn bakgrunn.
+                  </span>
                 </span>
-              </span>
-            </label>
+              </label>
 
-            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 transition hover:border-sky-300">
-              <input
-                type="radio"
-                name="processing-mode"
-                value={MODES.WHITE_BG}
-                checked={selectedMode === MODES.WHITE_BG}
-                onChange={(event) => setSelectedMode(event.target.value)}
-                className="mt-1"
-              />
-              <span>
-                <span className="block font-medium text-slate-900">Hvit bakgrunn (illustrasjon)</span>
-                <span className="block text-sm text-slate-600">
-                  Fjerner lyse piksler direkte uten å bruke ML-modellen.
+              <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 transition hover:border-sky-300">
+                <input
+                  type="radio"
+                  name="processing-mode"
+                  value={MODES.WHITE_BG}
+                  checked={selectedMode === MODES.WHITE_BG}
+                  onChange={(event) => setSelectedMode(event.target.value)}
+                  className="mt-1"
+                />
+                <span>
+                  <span className="block font-medium text-slate-900">Hvit bakgrunn (illustrasjon)</span>
+                  <span className="block text-sm text-slate-600">
+                    Fjerner lyse piksler direkte uten å bruke ML-modellen.
+                  </span>
                 </span>
-              </span>
-            </label>
-          </div>
-        </section>
+              </label>
+            </div>
+          </section>
 
-        <ImageDropzone onImageSelected={handleImageSelected} />
+          <ImageDropzone onImageSelected={handleImageSelected} />
+        </div>
 
         {isModelLoading ? <p className="text-sm text-slate-600">Laster modell...</p> : null}
 
@@ -215,14 +218,14 @@ export default function App() {
 
         {errorMessage ? <p className="text-sm text-red-600">{errorMessage}</p> : null}
 
-        <div className="space-y-2">
+        <div className="mx-auto w-full max-w-[480px] space-y-3">
           <h2 className="text-lg font-medium text-slate-900">Resultat</h2>
           <div ref={resultContainerRef} className="flex justify-center" />
           {resultCanvas ? (
             <button
               type="button"
               onClick={handleDownloadResult}
-              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
+              className="w-full rounded-lg bg-blue-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
             >
               Last ned PNG
             </button>
