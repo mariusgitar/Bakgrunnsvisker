@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import confetti from 'canvas-confetti';
 import ImageDropzone from './components/ImageDropzone';
 import LoadingAnimation from './components/LoadingAnimation';
 import {
@@ -12,6 +13,26 @@ const MODES = {
   WHITE_BG: 'white-background',
 };
 
+const launchConfetti = () => {
+  const end = Date.now() + 2200;
+
+  const frame = () => {
+    confetti({
+      origin: { y: 0.6 },
+      spread: 70,
+      particleCount: 100,
+      startVelocity: 35,
+      scalar: 0.9,
+    });
+
+    if (Date.now() < end) {
+      window.requestAnimationFrame(frame);
+    }
+  };
+
+  frame();
+};
+
 export default function App() {
   const worker = useMemo(
     () => new Worker(new URL('./workers/bgRemovalWorker.js', import.meta.url)),
@@ -21,6 +42,8 @@ export default function App() {
   const currentImageRef = useRef(null);
   const originalFileNameRef = useRef('');
   const resultContainerRef = useRef(null);
+  const shouldTriggerConfettiRef = useRef(false);
+  const hasTriggeredConfettiRef = useRef(false);
   const [selectedMode, setSelectedMode] = useState(MODES.PHOTO);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isModelLoading, setIsModelLoading] = useState(false);
@@ -51,6 +74,11 @@ export default function App() {
         setErrorMessage('');
         setIsProcessing(false);
         setIsModelLoading(false);
+
+        if (shouldTriggerConfettiRef.current && !hasTriggeredConfettiRef.current) {
+          launchConfetti();
+          hasTriggeredConfettiRef.current = true;
+        }
 
         if (objectUrlRef.current) {
           URL.revokeObjectURL(objectUrlRef.current);
@@ -129,6 +157,8 @@ export default function App() {
     setResultCanvas(null);
     setIsProcessing(true);
     setIsModelLoading(false);
+    shouldTriggerConfettiRef.current = selectedMode === MODES.PHOTO;
+    hasTriggeredConfettiRef.current = false;
 
     if (objectUrlRef.current) {
       URL.revokeObjectURL(objectUrlRef.current);
