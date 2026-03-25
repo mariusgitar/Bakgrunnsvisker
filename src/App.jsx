@@ -49,6 +49,7 @@ export default function App() {
   const [isModelLoading, setIsModelLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [resultCanvas, setResultCanvas] = useState(null);
+  const [whiteBgTolerance, setWhiteBgTolerance] = useState(240);
 
   useEffect(() => {
     const handleWorkerMessage = (event) => {
@@ -122,7 +123,12 @@ export default function App() {
     container.innerHTML = '';
 
     if (resultCanvas) {
-      resultCanvas.className = 'h-auto w-full max-w-[480px] rounded-xl border border-slate-200 bg-white shadow-sm';
+      resultCanvas.className = 'h-auto w-full max-w-[480px] rounded-xl border border-slate-200 shadow-sm';
+      resultCanvas.style.backgroundImage =
+        'linear-gradient(45deg, #e5e7eb 25%, transparent 25%), linear-gradient(-45deg, #e5e7eb 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e5e7eb 75%), linear-gradient(-45deg, transparent 75%, #e5e7eb 75%)';
+      resultCanvas.style.backgroundSize = '16px 16px';
+      resultCanvas.style.backgroundPosition = '0 0, 0 8px, 8px -8px, -8px 0px';
+      resultCanvas.style.backgroundColor = '#ffffff';
       container.appendChild(resultCanvas);
     }
   }, [resultCanvas]);
@@ -152,6 +158,20 @@ export default function App() {
     }, 'image/png');
   };
 
+
+  const handleWhiteToleranceChange = (event) => {
+    const nextTolerance = Number(event.target.value);
+
+    setWhiteBgTolerance(nextTolerance);
+
+    if (!currentImageRef.current || selectedMode !== MODES.WHITE_BG) {
+      return;
+    }
+
+    const canvas = removeWhiteBackground(currentImageRef.current, nextTolerance);
+    setResultCanvas(canvas);
+  };
+
   const handleImageSelected = async (file) => {
     setErrorMessage('');
     setResultCanvas(null);
@@ -172,7 +192,7 @@ export default function App() {
       originalFileNameRef.current = file.name;
 
       if (selectedMode === MODES.WHITE_BG) {
-        const canvas = removeWhiteBackground(imageElement);
+        const canvas = removeWhiteBackground(imageElement, whiteBgTolerance);
         setResultCanvas(canvas);
         setIsProcessing(false);
         return;
@@ -256,6 +276,23 @@ export default function App() {
         <div className="mx-auto w-full max-w-[480px] space-y-3">
           <h2 className="text-lg font-medium text-slate-900">Resultat</h2>
           <div ref={resultContainerRef} className="flex justify-center" />
+          {resultCanvas && selectedMode === MODES.WHITE_BG ? (
+            <div className="space-y-2 text-left">
+              <label htmlFor="white-bg-tolerance" className="block text-sm font-medium text-slate-700">
+                Styrke: {whiteBgTolerance}
+              </label>
+              <input
+                id="white-bg-tolerance"
+                type="range"
+                min={200}
+                max={255}
+                step={1}
+                value={whiteBgTolerance}
+                onChange={handleWhiteToleranceChange}
+                className="w-full accent-blue-900"
+              />
+            </div>
+          ) : null}
           {resultCanvas ? (
             <button
               type="button"
